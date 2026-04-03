@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Environment Variables
+.env
+backend/.env
+frontend/.env
+
+# Expo
+.expo
+frontend/.expo
+
+# Uploaded files
+backend/uploads/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
