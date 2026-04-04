@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, ScrollView, Image,
   TouchableOpacity, ActivityIndicator, StatusBar, Alert,
-  Animated, Platform, TextInput,
+  Animated, Platform, TextInput, FlatList, Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -14,6 +14,7 @@ import { getVehicleReviews } from '../../api/reviewService';
 import { colors, formatCurrency, formatDate, shadows } from '../../theme';
 
 const API_BASE = 'http://192.168.1.8:5000/';
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const VehicleDetailScreen = ({ route, navigation }) => {
   const { vehicleId } = route.params;
@@ -28,6 +29,7 @@ const VehicleDetailScreen = ({ route, navigation }) => {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [licenseDoc, setLicenseDoc] = useState(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -151,7 +153,35 @@ const VehicleDetailScreen = ({ route, navigation }) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Animated.View style={{ opacity: fadeAnim }}>
           <View style={styles.imageContainer}>
-            <Image source={{ uri: `${API_BASE}${vehicle.vehiclePhoto}` }} style={styles.heroImage} resizeMode="contain" />
+            <FlatList
+              data={vehicle.vehiclePhotos}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onMomentumScrollEnd={(e) => {
+                const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+                setActiveImageIndex(index);
+              }}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <Image source={{ uri: `${API_BASE}${item}` }} style={styles.heroImage} resizeMode="cover" />
+              )}
+            />
+            
+            {vehicle.vehiclePhotos.length > 1 && (
+              <View style={styles.pagination}>
+                {vehicle.vehiclePhotos.map((_, i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.dot,
+                      activeImageIndex === i ? styles.activeDot : styles.inactiveDot,
+                    ]}
+                  />
+                ))}
+              </View>
+            )}
+
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
               <Ionicons name="arrow-back" size={22} color={colors.text} />
             </TouchableOpacity>
@@ -283,8 +313,12 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   errorText: { color: colors.error, textAlign: 'center', marginTop: 40 },
-  imageContainer: { position: 'relative' },
-  heroImage: { width: '100%', height: 260 },
+  imageContainer: { position: 'relative', height: 280 },
+  heroImage: { width: SCREEN_WIDTH, height: 280 },
+  pagination: { position: 'absolute', bottom: 15, flexDirection: 'row', width: '100%', justifyContent: 'center', gap: 6 },
+  dot: { height: 6, borderRadius: 3 },
+  activeDot: { width: 18, backgroundColor: colors.primary },
+  inactiveDot: { width: 6, backgroundColor: 'rgba(255,255,255,0.5)' },
   backButton: { position: 'absolute', top: 44, left: 16, width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.85)', justifyContent: 'center', alignItems: 'center', ...shadows.small },
   content: { padding: 20 },
   titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },

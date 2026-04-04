@@ -53,7 +53,7 @@ const AdminVehiclesScreen = ({ navigation }) => {
     const sc = statusColors[item.status] || statusColors.Available;
     return (
       <View style={[styles.vehicleCard, shadows.small]}>
-        <Image source={{ uri: `${API_BASE}${item.vehiclePhoto}` }} style={styles.vehicleImage} resizeMode="contain" />
+        <Image source={{ uri: `${API_BASE}${item.vehiclePhotos[0]}` }} style={styles.vehicleImage} resizeMode="cover" />
         <View style={styles.vehicleInfo}>
           <View style={styles.topRow}>
             <View style={{ flex: 1 }}>

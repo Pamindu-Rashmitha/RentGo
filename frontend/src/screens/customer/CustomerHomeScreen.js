@@ -87,9 +87,9 @@ const CustomerHomeScreen = ({ navigation }) => {
         onPress={() => navigation.navigate('VehicleDetail', { vehicleId: item._id })}
       >
         <Image
-          source={{ uri: `${API_BASE}${item.vehiclePhoto}` }}
+          source={{ uri: `${API_BASE}${item.vehiclePhotos[0]}` }}
           style={styles.vehicleImage}
-          resizeMode="contain"
+          resizeMode="cover"
         />
         <View style={styles.vehicleInfo}>
           <View style={styles.vehicleHeader}>

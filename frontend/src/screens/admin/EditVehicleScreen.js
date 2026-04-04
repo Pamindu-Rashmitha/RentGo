@@ -24,14 +24,31 @@ const EditVehicleScreen = ({ route, navigation }) => {
   const [fuelType, setFuelType] = useState(vehicle.fuelType);
   const [transmission, setTransmission] = useState(vehicle.transmission);
   const [status, setStatus] = useState(vehicle.status);
-  const [photo, setPhoto] = useState(null);
+  const [photos, setPhotos] = useState(vehicle.vehiclePhotos.map(p => ({ uri: `${API_BASE}${p}`, isExisting: true })));
+  const [newPhotos, setNewPhotos] = useState([]); // Photos picked during this session
   const [submitting, setSubmitting] = useState(false);
 
   const update = (key, val) => setForm({ ...form, [key]: val });
 
-  const pickPhoto = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
-    if (!result.canceled) setPhoto(result.assets[0]);
+  const pickPhotos = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: true,
+      selectionLimit: 5,
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setNewPhotos(result.assets);
+      // When new photos are picked, they replace the existing ones in the preview
+      setPhotos(result.assets.slice(0, 5));
+    }
+  };
+
+  const removePhoto = (index) => {
+    const updated = photos.filter((_, i) => i !== index);
+    setPhotos(updated);
+    // If we removed a new photo, update newPhotos too
+    setNewPhotos(updated.filter(p => !p.isExisting));
   };
 
   const handleSubmit = async () => {
@@ -42,8 +59,14 @@ const EditVehicleScreen = ({ route, navigation }) => {
       formData.append('fuelType', fuelType);
       formData.append('transmission', transmission);
       formData.append('status', status);
-      if (photo) {
-        formData.append('vehiclePhoto', { uri: photo.uri, name: 'vehicle.jpg', type: 'image/jpeg' });
+      if (newPhotos.length > 0) {
+        newPhotos.forEach((p, index) => {
+          formData.append('vehiclePhotos', {
+            uri: p.uri,
+            name: `vehicle_${index}.jpg`,
+            type: 'image/jpeg',
+          });
+        });
       }
 
       await updateVehicle(vehicle._id, formData);
@@ -68,16 +91,25 @@ const EditVehicleScreen = ({ route, navigation }) => {
         </View>
 
         <View style={styles.content}>
-          <TouchableOpacity style={[styles.photoBox, shadows.small]} onPress={pickPhoto}>
-            <Image
-              source={{ uri: photo ? photo.uri : `${API_BASE}${vehicle.vehiclePhoto}` }}
-              style={styles.photoPreview}
-              resizeMode="cover"
-            />
-            <View style={styles.photoOverlay}>
-              <Ionicons name="camera-outline" size={24} color="#fff" />
-            </View>
-          </TouchableOpacity>
+          <View style={styles.photoSection}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoList}>
+              {photos.map((p, i) => (
+                <View key={i} style={[styles.photoItem, shadows.small]}>
+                  <Image source={{ uri: p.uri }} style={styles.photoPreview} />
+                  <TouchableOpacity style={styles.removePhotoBtn} onPress={() => removePhoto(i)}>
+                    <Ionicons name="close-circle" size={24} color={colors.error} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              {photos.length < 5 && (
+                <TouchableOpacity style={[styles.addPhotoBox, shadows.small]} onPress={pickPhotos}>
+                  <Ionicons name="camera-outline" size={32} color={colors.textMuted} />
+                  <Text style={styles.photoText}>Add Photo</Text>
+                </TouchableOpacity>
+              )}
+            </ScrollView>
+            <Text style={styles.photoCount}>{photos.length}/5 photos. Picking new ones replaces the old set.</Text>
+          </View>
 
           {[
             { key: 'make', label: 'Make', icon: 'car-outline' },
@@ -145,9 +177,14 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.card, justifyContent: 'center', alignItems: 'center' },
   headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text },
   content: { padding: 20 },
-  photoBox: { height: 180, borderRadius: 16, overflow: 'hidden', marginBottom: 20, position: 'relative', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder },
+  photoSection: { marginBottom: 20 },
+  photoList: { gap: 12, paddingRight: 20 },
+  photoItem: { width: 140, height: 140, borderRadius: 16, overflow: 'hidden', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, position: 'relative' },
+  removePhotoBtn: { position: 'absolute', top: 5, right: 5, backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 12 },
+  addPhotoBox: { width: 140, height: 140, borderRadius: 16, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, justifyContent: 'center', alignItems: 'center' },
   photoPreview: { width: '100%', height: '100%' },
-  photoOverlay: { position: 'absolute', bottom: 10, right: 10, width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  photoText: { color: colors.textMuted, fontSize: 12, marginTop: 4 },
+  photoCount: { color: colors.textMuted, fontSize: 11, marginTop: 8, fontWeight: '500' },
   label: { fontSize: 13, fontWeight: '600', color: colors.textSecondary, marginBottom: 8, marginTop: 4 },
   inputWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: 14, paddingHorizontal: 16, height: 52, borderWidth: 1, borderColor: colors.cardBorder, marginBottom: 12 },
   input: { flex: 1, color: colors.text, fontSize: 15 },

@@ -16,19 +16,30 @@ const AddVehicleScreen = ({ navigation }) => {
   const [form, setForm] = useState({ make: '', model: '', year: '', licensePlate: '', pricePerDay: '', seatingCapacity: '' });
   const [fuelType, setFuelType] = useState('');
   const [transmission, setTransmission] = useState('');
-  const [photo, setPhoto] = useState(null);
+  const [photos, setPhotos] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
   const update = (key, val) => setForm({ ...form, [key]: val });
 
-  const pickPhoto = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
-    if (!result.canceled) setPhoto(result.assets[0]);
+  const pickPhotos = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: true,
+      selectionLimit: 5,
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setPhotos([...photos, ...result.assets].slice(0, 5));
+    }
+  };
+
+  const removePhoto = (index) => {
+    setPhotos(photos.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async () => {
-    if (!form.make || !form.model || !form.year || !form.licensePlate || !form.pricePerDay || !fuelType || !transmission || !form.seatingCapacity || !photo) {
-      Alert.alert('Error', 'All fields are required including vehicle photo.');
+    if (!form.make || !form.model || !form.year || !form.licensePlate || !form.pricePerDay || !fuelType || !transmission || !form.seatingCapacity || photos.length === 0) {
+      Alert.alert('Error', 'All fields are required including at least one vehicle photo.');
       return;
     }
 
@@ -38,7 +49,13 @@ const AddVehicleScreen = ({ navigation }) => {
       Object.keys(form).forEach(k => formData.append(k, form[k]));
       formData.append('fuelType', fuelType);
       formData.append('transmission', transmission);
-      formData.append('vehiclePhoto', { uri: photo.uri, name: 'vehicle.jpg', type: 'image/jpeg' });
+      photos.forEach((p, index) => {
+        formData.append('vehiclePhotos', {
+          uri: p.uri,
+          name: `vehicle_${index}.jpg`,
+          type: 'image/jpeg',
+        });
+      });
 
       await createVehicle(formData);
       Alert.alert('Success', 'Vehicle added to fleet.', [{ text: 'OK', onPress: () => navigation.goBack() }]);
@@ -62,16 +79,25 @@ const AddVehicleScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.content}>
-          <TouchableOpacity style={[styles.photoBox, shadows.small]} onPress={pickPhoto}>
-            {photo ? (
-              <Image source={{ uri: photo.uri }} style={styles.photoPreview} resizeMode="cover" />
-            ) : (
-              <View style={styles.photoPlaceholder}>
-                <Ionicons name="camera-outline" size={32} color={colors.textMuted} />
-                <Text style={styles.photoText}>Tap to add photo</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          <View style={styles.photoSection}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoList}>
+              {photos.map((p, i) => (
+                <View key={i} style={[styles.photoItem, shadows.small]}>
+                  <Image source={{ uri: p.uri }} style={styles.photoPreview} />
+                  <TouchableOpacity style={styles.removePhotoBtn} onPress={() => removePhoto(i)}>
+                    <Ionicons name="close-circle" size={24} color={colors.error} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              {photos.length < 5 && (
+                <TouchableOpacity style={[styles.addPhotoBox, shadows.small]} onPress={pickPhotos}>
+                  <Ionicons name="camera-outline" size={32} color={colors.textMuted} />
+                  <Text style={styles.photoText}>Add Photo</Text>
+                </TouchableOpacity>
+              )}
+            </ScrollView>
+            <Text style={styles.photoCount}>{photos.length}/5 photos added</Text>
+          </View>
 
           {[
             { key: 'make', label: 'Make', placeholder: 'e.g. Toyota', icon: 'car-outline' },
@@ -131,10 +157,13 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.card, justifyContent: 'center', alignItems: 'center' },
   headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text },
   content: { padding: 20 },
-  photoBox: { height: 180, borderRadius: 16, overflow: 'hidden', marginBottom: 20, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder },
+  photoSection: { marginBottom: 20 },
+  photoList: { gap: 12, paddingRight: 20 },
+  photoItem: { width: 140, height: 140, borderRadius: 16, overflow: 'hidden', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, position: 'relative' },
+  removePhotoBtn: { position: 'absolute', top: 5, right: 5, backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 12 },
+  addPhotoBox: { width: 140, height: 140, borderRadius: 16, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.cardBorder, justifyContent: 'center', alignItems: 'center' },
   photoPreview: { width: '100%', height: '100%' },
-  photoPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  photoText: { color: colors.textMuted, fontSize: 13, marginTop: 8 },
+  photoCount: { color: colors.textMuted, fontSize: 12, marginTop: 8, fontWeight: '500' },
   label: { fontSize: 13, fontWeight: '600', color: colors.textSecondary, marginBottom: 8, marginTop: 4 },
   inputWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: 14, paddingHorizontal: 16, height: 52, borderWidth: 1, borderColor: colors.cardBorder, marginBottom: 12 },
   input: { flex: 1, color: colors.text, fontSize: 15 },

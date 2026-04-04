@@ -7,7 +7,7 @@ const LICENSE_PLATE_REGEX = /^[A-Z]{2,3}-\d{4}$/;
 const VALID_FUEL = ['Petrol', 'Diesel', 'Electric', 'Hybrid'];
 const VALID_TRANSMISSION = ['Manual', 'Automatic'];
 
-const validateVehicleFields = (body, file, isCreate) => {
+const validateVehicleFields = (body, files, isCreate) => {
     const errors = [];
     const {
         make, model, year, licensePlate, pricePerDay,
@@ -64,8 +64,8 @@ const validateVehicleFields = (body, file, isCreate) => {
             errors.push('Seating capacity must be between 1 and 15.');
     }
 
-    if (isCreate && !file) {
-        errors.push('Vehicle photo is required.');
+    if (isCreate && (!files || files.length === 0)) {
+        errors.push('At least one vehicle photo is required.');
     }
 
     return errors;
@@ -74,7 +74,7 @@ const validateVehicleFields = (body, file, isCreate) => {
 
 const createVehicle = async (req, res) => {
     try {
-        const errors = validateVehicleFields(req.body, req.file, true);
+        const errors = validateVehicleFields(req.body, req.files, true);
         if (errors.length > 0) return res.status(400).json({ message: errors[0], errors });
 
         const plate = req.body.licensePlate.toUpperCase().trim();
@@ -90,7 +90,7 @@ const createVehicle = async (req, res) => {
             fuelType: req.body.fuelType,
             transmission: req.body.transmission,
             seatingCapacity: parseInt(req.body.seatingCapacity, 10),
-            vehiclePhoto: req.file.path.replace(/\\/g, '/'),
+            vehiclePhotos: req.files.map(f => f.path.replace(/\\/g, '/')),
             isActive: true,
             status: 'Available',
         });
@@ -167,7 +167,7 @@ const updateVehicle = async (req, res) => {
         const vehicle = await Vehicle.findById(req.params.id);
         if (!vehicle) return res.status(404).json({ message: 'Vehicle not found.' });
 
-        const errors = validateVehicleFields(req.body, req.file, false);
+        const errors = validateVehicleFields(req.body, req.files, false);
         if (errors.length > 0) return res.status(400).json({ message: errors[0], errors });
 
         if (req.body.status === 'Under_Maintenance') {
@@ -201,7 +201,9 @@ const updateVehicle = async (req, res) => {
         if (req.body.transmission) vehicle.transmission = req.body.transmission;
         if (req.body.seatingCapacity) vehicle.seatingCapacity = parseInt(req.body.seatingCapacity, 10);
         if (req.body.status) vehicle.status = req.body.status;
-        if (req.file) vehicle.vehiclePhoto = req.file.path.replace(/\\/g, '/');
+        if (req.files && req.files.length > 0) {
+            vehicle.vehiclePhotos = req.files.map(f => f.path.replace(/\\/g, '/'));
+        }
 
         const updated = await vehicle.save();
         res.status(200).json({ message: 'Vehicle updated successfully.', vehicle: updated });

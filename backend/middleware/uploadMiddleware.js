@@ -48,7 +48,7 @@ const uploadVehiclePhoto = multer({
     storage: makeStorage('vehicles'),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: imageOnlyFilter,
-}).single('vehiclePhoto');
+}).array('vehiclePhotos', 5);
 
 // License document 
 const uploadLicenseDocument = multer({
