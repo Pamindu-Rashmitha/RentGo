@@ -75,7 +75,7 @@ const AdminBookingsScreen = ({ navigation }) => {
       <View style={styles.header}>
         <Text style={styles.title}>Bookings</Text>
         {pendingCount > 0 && (
-          <View style={[styles.pendingBadge, shadows.small]}>
+          <View style={[styles.pendingBadge]}>
             <Ionicons name="alert-circle" size={14} color={colors.warning} />
             <Text style={styles.pendingText}>{pendingCount} pending</Text>
           </View>

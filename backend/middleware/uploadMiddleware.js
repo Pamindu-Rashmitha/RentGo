@@ -78,6 +78,9 @@ const wrapUpload = (uploadFn) => (req, res, next) => {
             if (err.code === 'LIMIT_FILE_SIZE') {
                 return res.status(400).json({ message: 'File too large. Check size limits.' });
             }
+            if (err.code === 'LIMIT_UNEXPECTED_FILE' || err.code === 'LIMIT_FILE_COUNT') {
+                return res.status(400).json({ message: 'Maximum photo upload limit exceeded.' });
+            }
             return res.status(400).json({ message: err.message });
         }
         if (err) {

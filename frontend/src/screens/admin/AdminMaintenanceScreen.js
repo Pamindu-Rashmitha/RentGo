@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView, FlatList, ScrollView,
   TouchableOpacity, ActivityIndicator, StatusBar, Alert, TextInput,
-  RefreshControl, Modal, Platform,
+  RefreshControl, Modal, Platform, Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -29,6 +29,8 @@ const AdminMaintenanceScreen = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [photos, setPhotos] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
 
   const fetchTickets = async () => {
     try {
@@ -62,6 +64,9 @@ const AdminMaintenanceScreen = () => {
   const pickPhotos = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({ allowsMultipleSelection: true, quality: 0.8 });
     if (!result.canceled) {
+      if (result.assets.length > 5) {
+        Alert.alert('Limit Exceeded', 'Maximum 5 damage photos allowed. Only the first 5 will be kept.');
+      }
       setPhotos(result.assets.slice(0, 5));
     }
   };
@@ -134,7 +139,11 @@ const AdminMaintenanceScreen = () => {
     const v = item.vehicleId;
     const canUpdate = ['Open', 'In_Progress'].includes(item.status);
     return (
-      <View style={[styles.card, shadows.small]}>
+      <TouchableOpacity 
+        style={[styles.card, shadows.small]} 
+        activeOpacity={0.7}
+        onPress={() => { setSelectedTicket(item); setShowDetail(true); }}
+      >
         <View style={styles.cardTop}>
           <View style={{ flex: 1 }}>
             <Text style={styles.ticketTitle}>{item.ticketTitle}</Text>
@@ -144,7 +153,7 @@ const AdminMaintenanceScreen = () => {
             <Text style={[styles.statusText, { color: sc.text }]}>{formatStatus(item.status)}</Text>
           </View>
         </View>
-        <Text style={styles.descText}>{item.description}</Text>
+        <Text style={styles.descText} numberOfLines={2}>{item.description}</Text>
         <View style={styles.cardBottom}>
           <View style={styles.typeBadge}>
             <Text style={styles.typeText}>{formatStatus(item.maintenanceType)}</Text>
@@ -157,7 +166,7 @@ const AdminMaintenanceScreen = () => {
             <Text style={styles.updateText}>Update Status</Text>
           </TouchableOpacity>
         )}
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -264,6 +273,93 @@ const AdminMaintenanceScreen = () => {
           </View>
         </View>
       </Modal>
+
+      {/* Ticket Details Modal */}
+      <Modal visible={showDetail} transparent animationType="fade" onRequestClose={() => setShowDetail(false)}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={() => setShowDetail(false)} />
+          <View style={[styles.modalContent, shadows.medium]}>
+            {selectedTicket && (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={styles.modalHeader}>
+                  <View style={styles.modalIndicator} />
+                  <View style={styles.modalTitleRow}>
+                    <Text style={styles.modalTitle}>Ticket Details</Text>
+                    <TouchableOpacity onPress={() => setShowDetail(false)}>
+                      <Ionicons name="close-circle" size={28} color={colors.textMuted} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <View style={styles.detailHeader}>
+                  <Text style={styles.detailTitle}>{selectedTicket.ticketTitle}</Text>
+                  <View style={[styles.statusBadge, { 
+                    backgroundColor: statusColors[selectedTicket.status]?.bg, 
+                    borderColor: statusColors[selectedTicket.status]?.border,
+                    alignSelf: 'flex-start',
+                    marginTop: 8
+                  }]}>
+                    <Text style={[styles.statusText, { color: statusColors[selectedTicket.status]?.text }]}>
+                      {formatStatus(selectedTicket.status)}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={[styles.infoCard, { marginBottom: 20 }]}>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Vehicle</Text>
+                    <Text style={styles.infoValue}>{selectedTicket.vehicleId?.make} {selectedTicket.vehicleId?.model}</Text>
+                  </View>
+                  <View style={styles.divider} />
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Plate Number</Text>
+                    <Text style={styles.infoValue}>{selectedTicket.vehicleId?.licensePlate}</Text>
+                  </View>
+                  <View style={styles.divider} />
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Type</Text>
+                    <Text style={styles.infoValue}>{formatStatus(selectedTicket.maintenanceType)}</Text>
+                  </View>
+                  <View style={styles.divider} />
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Scheduled Date</Text>
+                    <Text style={styles.infoValue}>{formatDate(selectedTicket.scheduledDate)}</Text>
+                  </View>
+                </View>
+
+                <Text style={styles.label}>Description</Text>
+                <View style={styles.descBox}>
+                  <Text style={styles.descFullText}>{selectedTicket.description}</Text>
+                </View>
+
+                {selectedTicket.damagePhotos?.length > 0 && (
+                  <>
+                    <Text style={[styles.label, { marginTop: 20 }]}>Damage Photos ({selectedTicket.damagePhotos.length})</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photoList}>
+                      {selectedTicket.damagePhotos.map((photo, i) => (
+                        <View key={i} style={styles.photoContainer}>
+                          <Image 
+                            source={{ uri: `http://192.168.1.8:5000/${photo}` }} 
+                            style={styles.damagePhoto} 
+                            resizeMode="cover" 
+                          />
+                        </View>
+                      ))}
+                    </ScrollView>
+                  </>
+                )}
+
+                <TouchableOpacity 
+                  style={[styles.closeDetailBtn, shadows.small]} 
+                  onPress={() => setShowDetail(false)}
+                >
+                  <Text style={styles.closeDetailText}>Close</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -311,6 +407,20 @@ const styles = StyleSheet.create({
   photoBtnText: { fontSize: 15, color: colors.textSecondary, fontWeight: '600' },
   submitButton: { backgroundColor: colors.primary, borderRadius: 16, height: 60, justifyContent: 'center', alignItems: 'center', marginBottom: 20 },
   submitText: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  detailHeader: { marginBottom: 20 },
+  detailTitle: { fontSize: 20, fontWeight: '800', color: colors.text },
+  infoCard: { backgroundColor: colors.card, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: colors.cardBorder },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10 },
+  infoLabel: { fontSize: 13, color: colors.textMuted },
+  infoValue: { fontSize: 14, fontWeight: '600', color: colors.text },
+  divider: { height: 1, backgroundColor: colors.cardBorder },
+  descBox: { backgroundColor: colors.card, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: colors.cardBorder },
+  descFullText: { fontSize: 14, color: colors.textSecondary, lineHeight: 22 },
+  photoList: { flexDirection: 'row', gap: 12, marginTop: 10 },
+  photoContainer: { width: 120, height: 120, borderRadius: 12, overflow: 'hidden', backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.cardBorder, marginRight: 12 },
+  damagePhoto: { width: 120, height: 120 },
+  closeDetailBtn: { backgroundColor: colors.primary, borderRadius: 16, height: 52, justifyContent: 'center', alignItems: 'center', marginTop: 30, marginBottom: 10 },
+  closeDetailText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });
 
 export default AdminMaintenanceScreen;

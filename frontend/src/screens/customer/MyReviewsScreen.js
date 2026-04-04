@@ -5,6 +5,7 @@ import {
   RefreshControl, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../../context/AuthContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { getBookings } from '../../api/bookingService';
 import { getVehicleReviews, createReview, updateReview, deleteReview } from '../../api/reviewService';
@@ -19,6 +20,7 @@ const MyReviewsScreen = () => {
   const [comment, setComment] = useState('');
   const [editingReview, setEditingReview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const { user: currentUser } = useAuth();
 
   const fetchData = async () => {
     try {
@@ -32,9 +34,10 @@ const MyReviewsScreen = () => {
           seen.add(vId);
           try {
             const rRes = await getVehicleReviews(vId);
+            const userReview = (rRes.data.reviews || []).find(r => r.userId === currentUser?._id);
             uniqueVehicles.push({
               vehicle: b.vehicleId,
-              existingReview: (rRes.data.reviews || []).find(r => r._id),
+              existingReview: userReview,
               allReviews: rRes.data.reviews || [],
             });
           } catch {
@@ -121,7 +124,7 @@ const MyReviewsScreen = () => {
           <Ionicons name={isExpanded ? 'chevron-up' : 'chevron-down'} size={20} color={colors.textSecondary} />
         </TouchableOpacity>
 
-        {item.allReviews.length > 0 && !isExpanded && (
+        {item.existingReview && !isExpanded && (
           <View style={styles.existingBadge}>
             <Ionicons name="checkmark-circle" size={14} color={colors.success} />
             <Text style={styles.existingText}>Reviewed</Text>
@@ -150,7 +153,7 @@ const MyReviewsScreen = () => {
               )}
             </TouchableOpacity>
 
-            {item.allReviews.map((r) => (
+            {item.allReviews.filter(r => r.userId === currentUser?._id).map((r) => (
               <View key={r._id} style={styles.reviewItem}>
                 <View style={styles.reviewRow}>
                   <View style={styles.reviewStars}>
@@ -158,14 +161,16 @@ const MyReviewsScreen = () => {
                       <Ionicons key={s} name={s <= r.rating ? 'star' : 'star-outline'} size={12} color="#F59E0B" />
                     ))}
                   </View>
-                  <View style={styles.reviewActions}>
-                    <TouchableOpacity onPress={() => { setEditingReview(r._id); setRating(r.rating); setComment(r.comment); }}>
-                      <Ionicons name="pencil-outline" size={16} color={colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDelete(r._id)}>
-                      <Ionicons name="trash-outline" size={16} color={colors.error} />
-                    </TouchableOpacity>
-                  </View>
+                  {r.userId === currentUser?._id && (
+                    <View style={styles.reviewActions}>
+                      <TouchableOpacity onPress={() => { setEditingReview(r._id); setRating(r.rating); setComment(r.comment); }}>
+                        <Ionicons name="pencil-outline" size={16} color={colors.primary} />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDelete(r._id)}>
+                        <Ionicons name="trash-outline" size={16} color={colors.error} />
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
                 <Text style={styles.reviewComment}>{r.comment}</Text>
               </View>

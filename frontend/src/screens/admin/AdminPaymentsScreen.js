@@ -42,18 +42,20 @@ const AdminPaymentsScreen = () => {
   const handleVerify = (id) => {
     Alert.alert('Verify Payment', 'Confirm this bank transfer as received?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Verify', onPress: async () => {
-        setActing(true);
-        try {
-          await verifyPayment(id);
-          Alert.alert('Verified', 'Payment confirmed. Booking is now active.');
-          fetchPayments();
-        } catch (err) {
-          Alert.alert('Error', err.response?.data?.message || 'Verification failed.');
-        } finally {
-          setActing(false);
+      {
+        text: 'Verify', onPress: async () => {
+          setActing(true);
+          try {
+            await verifyPayment(id);
+            Alert.alert('Verified', 'Payment confirmed. Booking is now active.');
+            fetchPayments();
+          } catch (err) {
+            Alert.alert('Error', err.response?.data?.message || 'Verification failed.');
+          } finally {
+            setActing(false);
+          }
         }
-      }},
+      },
     ]);
   };
 
@@ -117,7 +119,7 @@ const AdminPaymentsScreen = () => {
               <Ionicons name="checkmark-circle-outline" size={16} color="#fff" />
               <Text style={styles.verifyText}>Verify</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.voidBtn, shadows.small]} onPress={() => { setVoidTarget(item._id); setVoidModalVisible(true); }} disabled={acting}>
+            <TouchableOpacity style={[styles.voidBtn]} onPress={() => { setVoidTarget(item._id); setVoidModalVisible(true); }} disabled={acting}>
               <Ionicons name="close-circle-outline" size={16} color={colors.error} />
               <Text style={styles.voidBtnText}>Void</Text>
             </TouchableOpacity>

@@ -104,6 +104,7 @@ const getVehicleReviews = async (req, res) => {
             const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0] + '.' : '';
             return {
                 _id: r._id,
+                userId: r.userId._id,
                 author: `${firstName}${lastInitial ? ' ' + lastInitial : ''}`,
                 rating: r.rating,
                 comment: r.comment,

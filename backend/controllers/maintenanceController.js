@@ -66,7 +66,10 @@ const createTicket = async (req, res) => {
             });
         }
 
-        // Collect damage photo paths
+        // Collect damage photo paths and validate count
+        if (req.files && req.files.length > 5) {
+            return res.status(400).json({ message: 'Maximum 5 damage photos allowed.' });
+        }
         const damagePhotos = req.files
             ? req.files.map((f) => f.path.replace(/\\/g, '/'))
             : [];
