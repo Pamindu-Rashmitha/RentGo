@@ -186,7 +186,11 @@ const BookingDetailScreen = ({ route, navigation }) => {
 
           {v && (
             <View style={[styles.vehicleCard, shadows.small]}>
-              <Image source={{ uri: `${API_BASE}${v.vehiclePhotos[0]}` }} style={styles.vehicleImage} resizeMode="cover" />
+              <Image 
+                source={{ uri: `${API_BASE}${v.vehiclePhotos?.[0] || ''}` }} 
+                style={styles.vehicleImage} 
+                resizeMode="cover" 
+              />
               <View style={styles.vehicleInfo}>
                 <Text style={styles.vehicleName}>{v.make} {v.model}</Text>
                 <Text style={styles.vehicleSub}>{v.year} • {v.licensePlate}</Text>

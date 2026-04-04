@@ -10,9 +10,10 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const { adminOnly } = require('../middleware/adminMiddleware');
 const { uploadVehiclePhoto } = require('../middleware/uploadMiddleware');
+const { optionalProtect } = require('../middleware/optionalAuth');
 
 // Public
-router.get('/', getVehicles);
+router.get('/', optionalProtect, getVehicles);
 router.get('/:id', getVehicleById);
 
 // Admin only

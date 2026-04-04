@@ -105,7 +105,7 @@ const getBookings = async (req, res) => {
         if (status) filter.status = status;
 
         const bookings = await Booking.find(filter)
-            .populate('vehicleId', 'make model year licensePlate vehiclePhoto pricePerDay')
+            .populate('vehicleId', 'make model year licensePlate vehiclePhotos pricePerDay')
             .populate('userId', 'name email')
             .sort({ createdAt: -1 });
 
@@ -128,7 +128,7 @@ const getBookings = async (req, res) => {
 const getBookingById = async (req, res) => {
     try {
         const booking = await Booking.findById(req.params.id)
-            .populate('vehicleId', 'make model year licensePlate vehiclePhoto pricePerDay')
+            .populate('vehicleId', 'make model year licensePlate vehiclePhotos pricePerDay')
             .populate('userId', 'name email');
 
         if (!booking) return res.status(404).json({ message: 'Booking not found.' });

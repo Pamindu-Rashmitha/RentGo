@@ -42,8 +42,8 @@ const validateVehicleFields = (body, files, isCreate) => {
 
     if (isCreate || pricePerDay !== undefined) {
         const price = parseFloat(pricePerDay);
-        if (isNaN(price) || price < 1 || price > 10000)
-            errors.push('Price per day must be between $1.00 and $10,000.00.');
+        if (isNaN(price) || price < 1000 || price > 60000)
+            errors.push('Price per day must be between LKR 1000.00 and LKR 60,000.00.');
         else if (!/^\d+(\.\d{1,2})?$/.test(String(pricePerDay)))
             errors.push('Price per day must have at most 2 decimal places.');
     }
@@ -110,7 +110,13 @@ const getVehicles = async (req, res) => {
             minPrice, maxPrice, startDate, endDate,
         } = req.query;
 
-        const filter = { isActive: true, status: 'Available' };
+        const isAdmin = req.user?.role === 'admin';
+        const filter = { isActive: true };
+
+        // Customers only see Available vehicles Admins see all vehicles
+        if (!isAdmin) {
+            filter.status = 'Available';
+        }
 
         if (fuelType && VALID_FUEL.includes(fuelType)) filter.fuelType = fuelType;
         if (transmission && VALID_TRANSMISSION.includes(transmission)) filter.transmission = transmission;

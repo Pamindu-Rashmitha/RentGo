@@ -76,7 +76,7 @@ const AdminBookingDetailScreen = ({ route, navigation }) => {
         </View>
 
         <View style={styles.content}>
-          <View style={[styles.statusBanner, shadows.small, { backgroundColor: sc.bg, borderColor: sc.border }]}>
+          <View style={[styles.statusBanner, { backgroundColor: sc.bg, borderColor: sc.border }]}>
             <Text style={[styles.statusBannerText, { color: sc.text }]}>{formatStatus(booking.status)}</Text>
           </View>
 
@@ -99,7 +99,11 @@ const AdminBookingDetailScreen = ({ route, navigation }) => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Vehicle</Text>
               <View style={[styles.vehicleCard, shadows.small]}>
-                <Image source={{ uri: `${API_BASE}${v.vehiclePhotos[0]}` }} style={styles.vehicleImage} resizeMode="cover" />
+                <Image 
+                  source={{ uri: `${API_BASE}${v.vehiclePhotos?.[0] || ''}` }} 
+                  style={styles.vehicleImage} 
+                  resizeMode="cover" 
+                />
                 <View style={styles.vehicleInfo}>
                   <Text style={styles.vehicleName}>{v.make} {v.model}</Text>
                   <Text style={styles.vehicleSub}>{v.year} • {v.licensePlate}</Text>
