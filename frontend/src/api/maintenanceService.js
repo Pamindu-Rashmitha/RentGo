@@ -16,3 +16,4 @@ export const getVehicleTickets = (vehicleId) =>
   api.get(`/maintenance/vehicle/${vehicleId}`);
 
 export const updateTicket = (id, data) => api.patch(`/maintenance/${id}`, data);
+export const deleteTicket = (id) => api.delete(`/maintenance/${id}`);

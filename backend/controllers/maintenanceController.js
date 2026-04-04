@@ -213,9 +213,47 @@ const updateTicket = async (req, res) => {
     }
 };
 
+const deleteTicket = async (req, res) => {
+    try {
+        const ticket = await Maintenance.findById(req.params.id);
+        if (!ticket) return res.status(404).json({ message: 'Maintenance ticket not found.' });
+
+        if (ticket.status === 'In_Progress') {
+            return res.status(400).json({
+                message: 'Cannot delete a ticket in progress. Complete or cancel it first.',
+            });
+        }
+
+        if (ticket.status === 'Completed' || ticket.status === 'Cancelled') {
+            return res.status(400).json({
+                message: 'Audit trail must be preserved. Completed or Cancelled tickets cannot be deleted.',
+            });
+        }
+
+        // If Open, allow deletion and restore vehicle status
+        if (ticket.status === 'Open') {
+            const vehicle = await Vehicle.findById(ticket.vehicleId);
+            if (vehicle && vehicle.status === 'Under_Maintenance') {
+                vehicle.status = 'Available';
+                await vehicle.save();
+            }
+            await Maintenance.findByIdAndDelete(req.params.id);
+            return res.status(200).json({
+                message: 'Ticket deleted and vehicle status restored to Available.',
+            });
+        }
+
+        res.status(400).json({ message: 'Invalid ticket status for deletion.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 module.exports = {
     createTicket,
     getTickets,
     getVehicleTickets,
     updateTicket,
+    deleteTicket,
 };

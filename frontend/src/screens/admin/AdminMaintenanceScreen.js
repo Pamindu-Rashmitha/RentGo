@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-import { getTickets, createTicket, updateTicket } from '../../api/maintenanceService';
+import { getTickets, createTicket, updateTicket, deleteTicket } from '../../api/maintenanceService';
 import { getVehicles } from '../../api/vehicleService';
 import { colors, formatDate, formatStatus, statusColors, shadows } from '../../theme';
 
@@ -122,6 +122,22 @@ const AdminMaintenanceScreen = () => {
         { text: 'Complete', onPress: () => doUpdate(id, 'Completed') },
       ]);
     }
+  };
+
+  const handleDeleteTicket = (id) => {
+    Alert.alert('Delete Ticket', 'Are you sure you want to delete this maintenance ticket? This action cannot be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        try {
+          const res = await deleteTicket(id);
+          Alert.alert('Deleted', res.data.message);
+          setShowDetail(false);
+          fetchTickets();
+        } catch (err) {
+          Alert.alert('Error', err.response?.data?.message || 'Failed to delete ticket.');
+        }
+      }},
+    ]);
   };
 
   const doUpdate = async (id, status) => {
@@ -355,6 +371,14 @@ const AdminMaintenanceScreen = () => {
                 >
                   <Text style={styles.closeDetailText}>Close</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.deleteTicketBtn} 
+                  onPress={() => handleDeleteTicket(selectedTicket._id)}
+                >
+                  <Ionicons name="trash-outline" size={16} color={colors.error} />
+                  <Text style={styles.deleteTicketText}>Delete Ticket</Text>
+                </TouchableOpacity>
               </ScrollView>
             )}
           </View>
@@ -421,6 +445,8 @@ const styles = StyleSheet.create({
   damagePhoto: { width: 120, height: 120 },
   closeDetailBtn: { backgroundColor: colors.primary, borderRadius: 16, height: 52, justifyContent: 'center', alignItems: 'center', marginTop: 30, marginBottom: 10 },
   closeDetailText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  deleteTicketBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, marginTop: 10, marginBottom: 20, gap: 8 },
+  deleteTicketText: { fontSize: 14, color: colors.error, fontWeight: '600' },
 });
 
 export default AdminMaintenanceScreen;

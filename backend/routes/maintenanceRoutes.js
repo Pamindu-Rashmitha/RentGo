@@ -5,6 +5,7 @@ const {
     getTickets,
     getVehicleTickets,
     updateTicket,
+    deleteTicket,
 } = require('../controllers/maintenanceController');
 const { protect } = require('../middleware/authMiddleware');
 const { adminOnly } = require('../middleware/adminMiddleware');
@@ -14,5 +15,6 @@ router.post('/', protect, adminOnly, uploadDamagePhotos, createTicket);
 router.get('/', protect, adminOnly, getTickets);
 router.get('/vehicle/:vehicleId', protect, adminOnly, getVehicleTickets);
 router.patch('/:id', protect, adminOnly, updateTicket);
+router.delete('/:id', protect, adminOnly, deleteTicket);
 
 module.exports = router;
