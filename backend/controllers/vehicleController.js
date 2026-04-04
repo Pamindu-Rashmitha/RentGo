@@ -30,8 +30,8 @@ const validateVehicleFields = (body, files, isCreate) => {
 
     if (isCreate || year !== undefined) {
         const y = parseInt(year, 10);
-        if (isNaN(y) || y < 1990 || y > CURRENT_YEAR + 1)
-            errors.push(`Year must be between 1990 and ${CURRENT_YEAR + 1}.`);
+        if (isNaN(y) || y < 1990 || y > CURRENT_YEAR)
+            errors.push(`Year must be between 1990 and ${CURRENT_YEAR}.`);
     }
 
     if (isCreate || licensePlate !== undefined) {
