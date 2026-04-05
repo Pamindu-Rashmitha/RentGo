@@ -10,7 +10,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { getTickets, createTicket, updateTicket, deleteTicket } from '../../api/maintenanceService';
 import { getVehicles } from '../../api/vehicleService';
-import { colors, formatDate, formatStatus, statusColors, shadows } from '../../theme';
+import { colors, formatDate, formatStatus, statusColors, shadows, getImageUri } from '../../theme';
 
 const TYPES = ['Routine_Service', 'Damage_Repair', 'Inspection', 'Other'];
 
@@ -355,7 +355,7 @@ const AdminMaintenanceScreen = () => {
                       {selectedTicket.damagePhotos.map((photo, i) => (
                         <View key={i} style={styles.photoContainer}>
                           <Image 
-                            source={{ uri: `http://192.168.1.8:5000/${photo}` }} 
+                            source={{ uri: getImageUri(photo) }} 
                             style={styles.damagePhoto} 
                             resizeMode="cover" 
                           />

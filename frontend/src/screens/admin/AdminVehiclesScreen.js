@@ -7,9 +7,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getVehicles, deleteVehicle } from '../../api/vehicleService';
-import { colors, formatCurrency, formatStatus, statusColors, shadows } from '../../theme';
-
-const API_BASE = 'http://192.168.1.8:5000/';
+import { colors, formatCurrency, formatStatus, statusColors, shadows, getImageUri } from '../../theme';
 
 const AdminVehiclesScreen = ({ navigation }) => {
   const [vehicles, setVehicles] = useState([]);
@@ -53,7 +51,7 @@ const AdminVehiclesScreen = ({ navigation }) => {
     const sc = statusColors[item.status] || statusColors.Available;
     return (
       <View style={[styles.vehicleCard, shadows.small]}>
-        <Image source={{ uri: `${API_BASE}${item.vehiclePhotos[0]}` }} style={styles.vehicleImage} resizeMode="cover" />
+        <Image source={{ uri: getImageUri(item.vehiclePhotos[0]) }} style={styles.vehicleImage} resizeMode="cover" />
         <View style={styles.vehicleInfo}>
           <View style={styles.topRow}>
             <View style={{ flex: 1 }}>

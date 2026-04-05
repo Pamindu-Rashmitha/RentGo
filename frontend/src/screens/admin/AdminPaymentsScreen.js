@@ -7,9 +7,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getPayments, verifyPayment, voidPayment } from '../../api/paymentService';
-import { colors, formatCurrency, formatDate, formatStatus, statusColors, shadows } from '../../theme';
-
-const API_BASE = 'http://192.168.1.8:5000/';
+import { colors, formatCurrency, formatDate, formatStatus, statusColors, shadows, getImageUri } from '../../theme';
 
 const AdminPaymentsScreen = () => {
   const [payments, setPayments] = useState([]);
@@ -102,7 +100,7 @@ const AdminPaymentsScreen = () => {
 
         {item.receiptImage && (
           <View style={[styles.receiptContainer, shadows.small]}>
-            <Image source={{ uri: `${API_BASE}${item.receiptImage}` }} style={styles.receiptImage} resizeMode="contain" />
+            <Image source={{ uri: getImageUri(item.receiptImage) }} style={styles.receiptImage} resizeMode="contain" />
           </View>
         )}
 

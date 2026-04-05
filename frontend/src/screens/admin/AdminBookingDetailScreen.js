@@ -6,9 +6,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getBookingById, updateBookingStatus } from '../../api/bookingService';
-import { colors, formatDate, formatCurrency, formatStatus, statusColors, shadows } from '../../theme';
-
-const API_BASE = 'http://192.168.1.8:5000/';
+import { colors, formatDate, formatCurrency, formatStatus, statusColors, shadows, getImageUri } from '../../theme';
 
 const AdminBookingDetailScreen = ({ route, navigation }) => {
   const { bookingId } = route.params;
@@ -100,7 +98,7 @@ const AdminBookingDetailScreen = ({ route, navigation }) => {
               <Text style={styles.sectionTitle}>Vehicle</Text>
               <View style={[styles.vehicleCard, shadows.small]}>
                 <Image 
-                  source={{ uri: `${API_BASE}${v.vehiclePhotos?.[0] || ''}` }} 
+                  source={{ uri: getImageUri(v.vehiclePhotos?.[0]) }} 
                   style={styles.vehicleImage} 
                   resizeMode="cover" 
                 />
@@ -136,7 +134,7 @@ const AdminBookingDetailScreen = ({ route, navigation }) => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>License Document</Text>
               <View style={[styles.licenseContainer, shadows.small]}>
-                <Image source={{ uri: `${API_BASE}${booking.licenseDocument}` }} style={styles.licenseImage} resizeMode="contain" />
+                <Image source={{ uri: getImageUri(booking.licenseDocument) }} style={styles.licenseImage} resizeMode="contain" />
               </View>
             </View>
           )}

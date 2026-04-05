@@ -7,9 +7,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { updateVehicle } from '../../api/vehicleService';
-import { colors, shadows } from '../../theme';
+import { colors, shadows, getImageUri } from '../../theme';
 
-const API_BASE = 'http://192.168.1.8:5000/';
 const FUEL_TYPES = ['Petrol', 'Diesel', 'Electric', 'Hybrid'];
 const TRANSMISSIONS = ['Manual', 'Automatic'];
 const VEHICLE_STATUSES = ['Available', 'Under_Maintenance'];
@@ -24,7 +23,7 @@ const EditVehicleScreen = ({ route, navigation }) => {
   const [fuelType, setFuelType] = useState(vehicle.fuelType);
   const [transmission, setTransmission] = useState(vehicle.transmission);
   const [status, setStatus] = useState(vehicle.status);
-  const [photos, setPhotos] = useState(vehicle.vehiclePhotos.map(p => ({ uri: `${API_BASE}${p}`, isExisting: true })));
+  const [photos, setPhotos] = useState(vehicle.vehiclePhotos.map(p => ({ uri: getImageUri(p), isExisting: true })));
   const [newPhotos, setNewPhotos] = useState([]); // Photos picked during this session
   const [submitting, setSubmitting] = useState(false);
 

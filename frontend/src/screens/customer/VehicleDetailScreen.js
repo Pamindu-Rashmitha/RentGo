@@ -11,9 +11,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { getVehicleById } from '../../api/vehicleService';
 import { createBooking } from '../../api/bookingService';
 import { getVehicleReviews } from '../../api/reviewService';
-import { colors, formatCurrency, formatDate, shadows } from '../../theme';
-
-const API_BASE = 'http://192.168.1.8:5000/';
+import { colors, formatCurrency, formatDate, shadows, getImageUri } from '../../theme';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const VehicleDetailScreen = ({ route, navigation }) => {
@@ -164,7 +162,7 @@ const VehicleDetailScreen = ({ route, navigation }) => {
               }}
               keyExtractor={(item, index) => index.toString()}
               renderItem={({ item }) => (
-                <Image source={{ uri: `${API_BASE}${item}` }} style={styles.heroImage} resizeMode="cover" />
+                <Image source={{ uri: getImageUri(item) }} style={styles.heroImage} resizeMode="cover" />
               )}
             />
             

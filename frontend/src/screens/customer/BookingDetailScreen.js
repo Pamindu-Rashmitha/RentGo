@@ -8,9 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { getBookingById, cancelBooking } from '../../api/bookingService';
 import { createPayment } from '../../api/paymentService';
-import { colors, formatDate, formatCurrency, formatStatus, statusColors, shadows } from '../../theme';
-
-const API_BASE = 'http://192.168.1.8:5000/';
+import { colors, formatDate, formatCurrency, formatStatus, statusColors, shadows, getImageUri } from '../../theme';
 
 const BookingDetailScreen = ({ route, navigation }) => {
   const { bookingId } = route.params;
@@ -187,7 +185,7 @@ const BookingDetailScreen = ({ route, navigation }) => {
           {v && (
             <View style={[styles.vehicleCard, shadows.small]}>
               <Image 
-                source={{ uri: `${API_BASE}${v.vehiclePhotos?.[0] || ''}` }} 
+                source={{ uri: getImageUri(v.vehiclePhotos?.[0]) }} 
                 style={styles.vehicleImage} 
                 resizeMode="cover" 
               />

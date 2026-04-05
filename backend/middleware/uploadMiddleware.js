@@ -1,31 +1,29 @@
 const multer = require('multer');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 
-// Ensure upload directories exist
-const ensureDir = (dir) => {
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-};
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-ensureDir('uploads/vehicles');
-ensureDir('uploads/licenses');
-ensureDir('uploads/receipts');
-ensureDir('uploads/maintenance');
-
-// Storage factory
+// Storage factory for Cloudinary
 const makeStorage = (subfolder) =>
-    multer.diskStorage({
-        destination: (req, file, cb) => cb(null, `uploads/${subfolder}`),
-        filename: (req, file, cb) => {
-            const ext = path.extname(file.originalname).toLowerCase();
-            cb(null, `${uuidv4()}${ext}`);
+    new CloudinaryStorage({
+        cloudinary: cloudinary,
+        params: {
+            folder: `RentGo/${subfolder}`,
+            allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'],
+            // Transformation example: resize to max width of 1200px
+            transformation: [{ width: 1200, crop: 'limit' }],
         },
     });
 
-// File filter: JPEG/PNG only
+// File filter 
 const imageOnlyFilter = (req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/png'];
+    const allowed = ['image/jpeg', 'image/png', 'image/jpg'];
     if (allowed.includes(file.mimetype)) {
         cb(null, true);
     } else {
@@ -33,9 +31,8 @@ const imageOnlyFilter = (req, file, cb) => {
     }
 };
 
-// File filter: JPEG/PNG/PDF
 const imageOrPdfFilter = (req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/png', 'application/pdf'];
+    const allowed = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
     if (allowed.includes(file.mimetype)) {
         cb(null, true);
     } else {
@@ -43,28 +40,25 @@ const imageOrPdfFilter = (req, file, cb) => {
     }
 };
 
-// Vehicle photo 
+// Middleware definitions
 const uploadVehiclePhoto = multer({
     storage: makeStorage('vehicles'),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: imageOnlyFilter,
 }).array('vehiclePhotos', 5);
 
-// License document 
 const uploadLicenseDocument = multer({
     storage: makeStorage('licenses'),
     limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: imageOrPdfFilter,
 }).single('licenseDocument');
 
-// Receipt image
 const uploadReceiptImage = multer({
     storage: makeStorage('receipts'),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: imageOnlyFilter,
 }).single('receiptImage');
 
-// Damage photos
 const uploadDamagePhotos = multer({
     storage: makeStorage('maintenance'),
     limits: { fileSize: 5 * 1024 * 1024 },

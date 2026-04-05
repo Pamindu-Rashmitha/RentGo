@@ -8,9 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getVehicles } from '../../api/vehicleService';
 import { useAuth } from '../../context/AuthContext';
-import { colors, formatCurrency, shadows } from '../../theme';
-
-const API_BASE = 'http://192.168.1.8:5000/';
+import { colors, formatCurrency, shadows, getImageUri } from '../../theme';
 
 const FUEL_TYPES = ['All', 'Petrol', 'Diesel', 'Electric', 'Hybrid'];
 const TRANSMISSIONS = ['All', 'Manual', 'Automatic'];
@@ -87,7 +85,7 @@ const CustomerHomeScreen = ({ navigation }) => {
         onPress={() => navigation.navigate('VehicleDetail', { vehicleId: item._id })}
       >
         <Image
-          source={{ uri: `${API_BASE}${item.vehiclePhotos[0]}` }}
+          source={{ uri: getImageUri(item.vehiclePhotos[0]) }}
           style={styles.vehicleImage}
           resizeMode="cover"
         />
