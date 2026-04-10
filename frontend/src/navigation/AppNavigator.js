@@ -24,6 +24,8 @@ import AdminBookingsScreen from '../screens/admin/AdminBookingsScreen';
 import AdminBookingDetailScreen from '../screens/admin/AdminBookingDetailScreen';
 import AdminPaymentsScreen from '../screens/admin/AdminPaymentsScreen';
 import AdminMaintenanceScreen from '../screens/admin/AdminMaintenanceScreen';
+import AdminUsersScreen from '../screens/admin/AdminUsersScreen';
+import EditProfileScreen from '../screens/customer/EditProfileScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -86,14 +88,32 @@ function CustomerBookingsStack() {
   );
 }
 
+function ProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={screenOptions}>
+      <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+    </Stack.Navigator>
+  );
+}
+
 function CustomerTabs() {
   return (
     <Tab.Navigator screenOptions={tabScreenOptions}>
       <Tab.Screen name="Explore" component={ExploreStack} />
       <Tab.Screen name="Bookings" component={CustomerBookingsStack} />
       <Tab.Screen name="Reviews" component={MyReviewsScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
+  );
+}
+
+function AdminDashboardStack() {
+  return (
+    <Stack.Navigator screenOptions={screenOptions}>
+      <Stack.Screen name="DashboardMain" component={AdminDashboardScreen} />
+      <Stack.Screen name="AdminUsers" component={AdminUsersScreen} />
+    </Stack.Navigator>
   );
 }
 
@@ -119,7 +139,7 @@ function AdminBookingsStack() {
 function AdminTabs() {
   return (
     <Tab.Navigator screenOptions={tabScreenOptions}>
-      <Tab.Screen name="Dashboard" component={AdminDashboardScreen} />
+      <Tab.Screen name="Dashboard" component={AdminDashboardStack} />
       <Tab.Screen name="Vehicles" component={AdminVehiclesStack} />
       <Tab.Screen name="AdminBookings" component={AdminBookingsStack} options={{ tabBarLabel: 'Bookings' }} />
       <Tab.Screen name="Payments" component={AdminPaymentsScreen} />

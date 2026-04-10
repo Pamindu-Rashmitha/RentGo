@@ -107,6 +107,7 @@ const AdminDashboardScreen = ({ navigation }) => {
             { label: 'View Bookings', icon: 'receipt', screen: 'AdminBookings', color: colors.success, bg: colors.successBg },
             { label: 'Verify Payments', icon: 'card', screen: 'Payments', color: colors.warning, bg: colors.warningBg },
             { label: 'Maintenance', icon: 'construct', screen: 'Maintenance', color: colors.blue, bg: colors.blueBg },
+            { label: 'Manage Users', icon: 'people', screen: 'AdminUsers', color: '#6366F1', bg: 'rgba(99, 102, 241, 0.1)' },
           ].map((a, i) => (
             <TouchableOpacity
               key={i}

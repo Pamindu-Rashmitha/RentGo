@@ -11,6 +11,7 @@ const bookingRoutes = require('./routes/bookingRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const maintenanceRoutes = require('./routes/maintenanceRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 // Cron jobs
 const { startCronJobs } = require('./utils/cronJobs');
@@ -30,6 +31,7 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
+app.use('/api/users', userRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {

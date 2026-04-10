@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { colors, shadows } from '../../theme';
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
 
   return (
@@ -33,7 +33,10 @@ const ProfileScreen = () => {
         </View>
 
         <View style={[styles.menuCard, shadows.small]}>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('EditProfile')}
+          >
             <View style={styles.menuIconBox}>
               <Ionicons name="person-outline" size={18} color={colors.primary} />
             </View>
