@@ -44,15 +44,10 @@ const ProfileScreen = ({ navigation }) => {
             <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
           </TouchableOpacity>
           <View style={styles.menuDivider} />
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIconBox}>
-              <Ionicons name="notifications-outline" size={18} color={colors.primary} />
-            </View>
-            <Text style={styles.menuText}>Notifications</Text>
-            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
-          </TouchableOpacity>
-          <View style={styles.menuDivider} />
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('HelpSupport')}
+          >
             <View style={styles.menuIconBox}>
               <Ionicons name="help-circle-outline" size={18} color={colors.primary} />
             </View>

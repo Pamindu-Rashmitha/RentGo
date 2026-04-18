@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, SafeAreaView, TextInput,
   TouchableOpacity, StatusBar, Platform, KeyboardAvoidingView, ScrollView, Alert, ActivityIndicator
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { updateProfile } from '../../api/userService';
@@ -23,7 +24,9 @@ const EditProfileScreen = ({ navigation }) => {
     try {
       setLoading(true);
       const updatedUser = await updateProfile({ name, email });
-      setUser({ ...user, ...updatedUser });
+      const merged = { ...user, ...updatedUser };
+      setUser(merged);
+      await AsyncStorage.setItem('userData', JSON.stringify(merged));
       Alert.alert('Success', 'Profile updated successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);

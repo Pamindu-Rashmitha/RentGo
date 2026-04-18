@@ -26,6 +26,7 @@ import AdminPaymentsScreen from '../screens/admin/AdminPaymentsScreen';
 import AdminMaintenanceScreen from '../screens/admin/AdminMaintenanceScreen';
 import AdminUsersScreen from '../screens/admin/AdminUsersScreen';
 import EditProfileScreen from '../screens/customer/EditProfileScreen';
+import HelpSupportScreen from '../screens/customer/HelpSupportScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -93,6 +94,7 @@ function ProfileStack() {
     <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen name="ProfileMain" component={ProfileScreen} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
     </Stack.Navigator>
   );
 }
