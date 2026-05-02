@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "69d2ecb6-6bd6-4e7e-8538-2319d8e997ef"
+      }
+    },
+    "android": {
+      "package": "com.pamindurashmitha.rentgofrontend"
+    }
+  }
+}

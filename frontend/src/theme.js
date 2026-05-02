@@ -1,3 +1,5 @@
+import { BASE_URL } from './api/axiosConfig';
+
 export const colors = {
   bg: '#F8FAFC',
   card: '#FFFFFF',
@@ -85,6 +87,5 @@ export const formatStatus = (status) => {
 export const getImageUri = (path) => {
   if (!path) return null;
   if (path.startsWith('http')) return path;
-  // Fallback for local uploads (using common IP)
-  return `http://192.168.1.8:5000/${path.startsWith('/') ? path.slice(1) : path}`;
+  return `${BASE_URL}/${path.startsWith('/') ? path.slice(1) : path}`;
 };
